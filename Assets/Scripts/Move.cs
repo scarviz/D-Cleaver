@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 
 public class Move : MonoBehaviour
 {
@@ -36,7 +34,10 @@ public class Move : MonoBehaviour
 	private GameObject Player { get; set; }
 	private GameObject Camera { get; set; }
 	private int PosIdx { get; set; }
+	private DragonAnimation DragonAnime { get; set; }
 
+	[SerializeField]
+	private GameObject gameEvent;
 	[SerializeField]
 	private int startPositionIndex = 22;
 	[SerializeField]
@@ -48,6 +49,7 @@ public class Move : MonoBehaviour
 		Player = this.gameObject;
 		Camera = Player.transform.FindChild("Camera").gameObject;
 		PosIdx = startPositionIndex;
+		DragonAnime = gameEvent.GetComponent<DragonAnimation>();
 	}
 
 	// Update is called once per frame
@@ -76,6 +78,10 @@ public class Move : MonoBehaviour
 			var playerPos = Player.transform.position;
 			var vec = new Vector3(playerPos.x + 1f * decX, playerPos.y, playerPos.z + 1f * decZ);
 			Player.transform.position = vec;
+
+			if (PosIdx == 104) { DragonAnime.Play(DragonAnimation.EventId.Approach); }
+			else if (PosIdx == 116) { DragonAnime.Play(DragonAnimation.EventId.Init); }
+
 		}
 	}
 }
