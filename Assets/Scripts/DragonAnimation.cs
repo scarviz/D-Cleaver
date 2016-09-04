@@ -6,12 +6,16 @@ public class DragonAnimation : MonoBehaviour
 {
 	[SerializeField]
 	private GameObject dragon;
+	[SerializeField]
+	private AudioClip roarsClip;
 
 	private Animation mAnime;
 	private AnimationClip mRunAnime;
 	private AnimationClip mBreathFireAnime;
 	
 	private Vector3 mDefDragonPos;
+
+	private AudioSource mAudioSrc;
 
 	public enum EventId {
 		Init,
@@ -25,6 +29,9 @@ public class DragonAnimation : MonoBehaviour
 		mBreathFireAnime = mAnime.GetClip("breath fire");
 
 		mDefDragonPos = dragon.transform.position;
+
+		mAudioSrc = dragon.GetComponent<AudioSource>();
+		mAudioSrc.clip = roarsClip;
 	}
 
 	public void Play(EventId id)
@@ -42,7 +49,7 @@ public class DragonAnimation : MonoBehaviour
 				dragonPos.z += 1.85f;
 				StartCoroutine(Move(dragon.transform, dragonPos, 0.5f));
 
-				StartCoroutine(DelayPlayAnimation(mAnime, mBreathFireAnime));
+				StartCoroutine(DelayPlayAnimation(mAnime, mBreathFireAnime, mAudioSrc));
 				break;
 		}
 	}
@@ -70,10 +77,11 @@ public class DragonAnimation : MonoBehaviour
 		}
 	}
 
-	private IEnumerator DelayPlayAnimation(Animation animation, AnimationClip clip)
+	private IEnumerator DelayPlayAnimation(Animation animation, AnimationClip clip, AudioSource audioSrc)
 	{
 		while (animation.isPlaying) { yield return new WaitForSeconds(0.01f); }
 		animation.clip = clip;
 		animation.Play();
+		audioSrc.Play();
 	}
 }
