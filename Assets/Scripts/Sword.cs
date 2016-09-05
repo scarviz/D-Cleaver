@@ -14,6 +14,7 @@ public class Sword : MonoBehaviour
 
 	private GameObject mSword;
 	private AudioSource mAudioSrc;
+	private GameObject mSword2hands;
 
 	// Use this for initialization
 	void Start ()
@@ -21,6 +22,8 @@ public class Sword : MonoBehaviour
 		mSword = this.gameObject;
 		mAudioSrc = mSword.GetComponent<AudioSource>();
 		mAudioSrc.clip = swingClip;
+
+		mSword2hands = mSword.transform.FindChild("sword_2hands").gameObject;
 	}
 
 	// Update is called once per frame
@@ -28,11 +31,11 @@ public class Sword : MonoBehaviour
 	{
 		if (GvrController.State != GvrConnectionState.Connected)
 		{
-			mSword.SetActive(false);
+			mSword2hands.SetActive(false);
 			return;
 		}
 
-		mSword.SetActive(true);
+		mSword2hands.SetActive(true);
 		mSword.transform.localRotation = GvrController.Orientation;
 
 		if (mAudioSrc.isPlaying) return;
