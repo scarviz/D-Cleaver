@@ -19,3 +19,6 @@ https://www.assetstore.unity3d.com/jp/#!/content/24328
 
 Big Dragon monster rawrs  
 https://www.assetstore.unity3d.com/jp/#!/content/56737
+
+Sword Fight Swing and Hit Sounds  
+https://www.assetstore.unity3d.com/jp/#!/content/66538

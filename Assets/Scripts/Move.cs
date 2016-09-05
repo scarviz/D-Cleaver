@@ -19,10 +19,10 @@ public class Move : MonoBehaviour
 		1,0,0,0,0,0,0,0,0,0,0,1,
 		1,0,1,1,1,1,1,1,1,1,1,1,
 		1,0,1,0,0,1,0,0,0,0,0,1,
-		1,0,1,0,0,1,0,2,2,2,0,1,
-		1,0,1,1,1,1,0,2,2,2,0,1,
-		1,0,0,0,0,1,0,2,2,2,0,1,
-		1,1,1,1,0,1,0,2,2,2,0,1,
+		1,0,1,0,0,1,0,0,0,0,0,1,
+		1,0,1,1,1,1,0,0,2,0,0,1,
+		1,0,0,0,0,1,0,0,2,0,0,1,
+		1,1,1,1,0,1,0,0,2,0,0,1,
 		1,0,0,0,0,1,0,0,0,0,0,1,
 		1,0,1,1,1,1,1,1,0,1,1,1,
 		1,0,0,0,0,0,0,0,0,0,0,1,
@@ -50,7 +50,7 @@ public class Move : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if(Input.GetButtonDown(submitButtonName))
+		if(Input.GetButtonDown(submitButtonName) || GvrController.TouchUp)
 		{
 			Debug.Log("GetButtonDown");
 
