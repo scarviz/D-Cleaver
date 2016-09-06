@@ -31,6 +31,8 @@ public class Sword : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if (GameMng.VisibleTitle) return;
+
 		if (GvrController.State != GvrConnectionState.Connected)
 		{
 			mSword2hands.SetActive(false);

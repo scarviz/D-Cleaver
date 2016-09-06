@@ -48,6 +48,8 @@ public class Move : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if (GameMng.VisibleTitle) return;
+
 		if(Input.GetButtonDown(submitButtonName) || GvrController.TouchUp)
 		{
 			Debug.Log("GetButtonDown");

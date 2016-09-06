@@ -82,6 +82,7 @@ public class DragonAnimation : GameEvent
 			mAnime.Play();
 			StartCoroutine(DelayAction(mAnime, () =>
 			{
+				GameMng.VisibleTitle = true;
 				Destroy(mDragon);
 			}));
 		}
