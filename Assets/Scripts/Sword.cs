@@ -11,13 +11,15 @@ public class Sword : MonoBehaviour
 	private AudioClip swingClip;
 	[SerializeField]
 	private AudioClip hitClip;
+	[SerializeField]
+	private String enemyTagName;
 
 	private GameObject mSword;
 	private AudioSource mAudioSrc;
 	private GameObject mSword2hands;
 
 	// Use this for initialization
-	void Start ()
+	void Start()
 	{
 		mSword = this.gameObject;
 		mAudioSrc = mSword.GetComponent<AudioSource>();
@@ -44,7 +46,17 @@ public class Sword : MonoBehaviour
 			|| grav < Math.Abs(GvrController.Accel.y)
 			|| grav < Math.Abs(GvrController.Accel.z))
 		{
+			mAudioSrc.clip = swingClip;
 			mAudioSrc.Play();
 		}
+	}
+
+	void OnTriggerEnter(Collider collider)
+	{
+		if (!collider.gameObject.CompareTag(enemyTagName)) return;
+		if (mAudioSrc.isPlaying) return;
+
+		mAudioSrc.clip = hitClip;
+		mAudioSrc.Play();
 	}
 }

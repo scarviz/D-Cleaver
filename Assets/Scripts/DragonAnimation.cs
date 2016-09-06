@@ -2,18 +2,24 @@
 using System.Collections;
 using UnityEngine;
 
-public class DragonAnimation : MonoBehaviour
+public class DragonAnimation : GameEvent
 {
 	[SerializeField]
-	private GameObject dragon;
-	[SerializeField]
 	private AudioClip roarsClip;
+	[SerializeField]
+	private AudioClip deathClip;
+	[SerializeField]
+	private String weaponTagName;
+	[SerializeField]
+	private int dragonHp = 5;
 
+	private GameObject mDragon;
 	private Animation mAnime;
 	private AnimationClip mIdleAnime;
 	private AnimationClip mRunAnime;
 	private AnimationClip mBreathFireAnime;
 	private AnimationClip mFlyAttackAnime;
+	private AnimationClip mDeathAnime;
 
 	private Vector3 mDefDragonPos;
 
@@ -26,22 +32,24 @@ public class DragonAnimation : MonoBehaviour
 		set { lock (this) { _isExecEvent = value; } }
 	}
 
-	public enum EventId {
-		Init,
-		Approach
+	public class EventId {
+		public const int Init = 1;
+		public const int Approach = 2;
 	}
 
 	void Start()
 	{
-		mAnime = dragon.GetComponent<Animation>();
+		mDragon = this.gameObject;
+		mAnime = mDragon.GetComponent<Animation>();
 		mIdleAnime = mAnime.GetClip("idle");
 		mRunAnime = mAnime.GetClip("run");
 		mBreathFireAnime = mAnime.GetClip("breath fire");
 		mFlyAttackAnime = mAnime.GetClip("fly attack");
+		mDeathAnime = mAnime.GetClip("death");
 
-		mDefDragonPos = dragon.transform.position;
+		mDefDragonPos = mDragon.transform.position;
 
-		mAudioSrc = dragon.GetComponent<AudioSource>();
+		mAudioSrc = mDragon.GetComponent<AudioSource>();
 		mAudioSrc.clip = roarsClip;
 	}
 
@@ -53,12 +61,38 @@ public class DragonAnimation : MonoBehaviour
 		}
 	}
 
-	public void Play(EventId id)
+	void OnTriggerEnter(Collider collider)
 	{
-		switch (id)
+		if (!collider.gameObject.CompareTag(weaponTagName)) return;
+
+		if (IsExecEvent) return;
+
+		if (--dragonHp > 0)
+		{
+			StartCoroutine(DelayPlayAnimation(mAnime, mBreathFireAnime, mAudioSrc));
+			StartCoroutine(WaitWhilePlayingAnim(mAnime));
+		}
+		else
+		{
+			mAudioSrc.clip = deathClip;
+			mAudioSrc.Play();
+
+			IsExecEvent = true;
+			mAnime.clip = mDeathAnime;
+			mAnime.Play();
+			StartCoroutine(DelayAction(mAnime, () =>
+			{
+				Destroy(mDragon);
+			}));
+		}
+	}
+
+	public override void Exec(int eventId)
+	{
+		switch (eventId)
 		{
 			case EventId.Init:
-				dragon.transform.position = mDefDragonPos;
+				mDragon.transform.position = mDefDragonPos;
 				break;
 			case EventId.Approach:
 				mAnime.clip = mRunAnime;
@@ -66,11 +100,11 @@ public class DragonAnimation : MonoBehaviour
 				
 				var dragonPos = mDefDragonPos;
 				dragonPos.z += 1.85f;
-				StartCoroutine(Move(dragon.transform, dragonPos, 0.5f));
+				StartCoroutine(Move(mDragon.transform, dragonPos, 0.5f));
 
 				StartCoroutine(DelayPlayAnimation(mAnime, mBreathFireAnime, mAudioSrc));
 
-				StartCoroutine(CheckPlayingAnim(mAnime));
+				StartCoroutine(WaitWhilePlayingAnim(mAnime));
 				break;
 		}
 	}
@@ -106,7 +140,7 @@ public class DragonAnimation : MonoBehaviour
 		if(audioSrc != null) audioSrc.Play();
 	}
 
-	private IEnumerator CheckPlayingAnim(Animation animation)
+	private IEnumerator WaitWhilePlayingAnim(Animation animation)
 	{
 		while (animation.isPlaying) {
 			IsExecEvent = true;
@@ -114,4 +148,11 @@ public class DragonAnimation : MonoBehaviour
 		}
 		IsExecEvent = false;
 	}
+
+	private IEnumerator DelayAction(Animation animation, Action action)
+	{
+		while (animation.isPlaying) { yield return new WaitForSeconds(0.01f); }
+		action();
+	}
+
 }

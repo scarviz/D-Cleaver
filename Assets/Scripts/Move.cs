@@ -6,7 +6,7 @@ public class Move : MonoBehaviour
 	private const int MAX_Y = 12;
 
 	[SerializeField]
-	private GameObject gameEvent;
+	private GameMng gameMng;
 	[SerializeField]
 	private int startPositionIndex = 22;
 	[SerializeField]
@@ -32,7 +32,6 @@ public class Move : MonoBehaviour
 	private GameObject mPlayer;
 	private GameObject mCamera;
 	private int mPosIdx;
-	private DragonAnimation mDragonAnime;
 	private AudioSource mAudioSrc;
 
 	// Use this for initialization
@@ -41,7 +40,6 @@ public class Move : MonoBehaviour
 		mPlayer = this.gameObject;
 		mCamera = mPlayer.transform.FindChild("Camera").gameObject;
 		mPosIdx = startPositionIndex;
-		mDragonAnime = gameEvent.GetComponent<DragonAnimation>();
 
 		mAudioSrc = mPlayer.GetComponent<AudioSource>();
 		mAudioSrc.clip = footstepsClip;
@@ -92,10 +90,10 @@ public class Move : MonoBehaviour
 		switch (potisionIdx)
 		{
 			case 104:
-				mDragonAnime.Play(DragonAnimation.EventId.Approach);
+				gameMng.ExecEnemyEvent(DragonAnimation.EventId.Approach);
 				break;
 			case 116:
-				mDragonAnime.Play(DragonAnimation.EventId.Init);
+				gameMng.ExecEnemyEvent(DragonAnimation.EventId.Init);
 				break;
 		}
 	}
