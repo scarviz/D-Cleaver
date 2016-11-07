@@ -5,6 +5,8 @@ public class Move : MonoBehaviour
 	private const int MAX_X = 12;
 	private const int MAX_Y = 12;
 
+	private const float MAP_SIZE = 12f;
+
 	[SerializeField]
 	private GameMng gameMng;
 	[SerializeField]
@@ -80,7 +82,7 @@ public class Move : MonoBehaviour
 		mPosIdx = nextIdx;
 
 		var playerPos = mPlayer.transform.position;
-		var vec = new Vector3(playerPos.x + 1f * decX, playerPos.y, playerPos.z + 1f * decZ);
+		var vec = new Vector3(playerPos.x + MAP_SIZE * decX, playerPos.y, playerPos.z + MAP_SIZE * decZ);
 		mPlayer.transform.position = vec;
 		mAudioSrc.Play();
 

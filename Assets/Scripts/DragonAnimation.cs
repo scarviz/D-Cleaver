@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class DragonAnimation : GameEvent
 {
+	private const float DRAGON_STEP = 8f;
+
 	[SerializeField]
 	private AudioClip roarsClip;
 	[SerializeField]
@@ -20,10 +22,22 @@ public class DragonAnimation : GameEvent
 	private AnimationClip mBreathFireAnime;
 	private AnimationClip mFlyAttackAnime;
 	private AnimationClip mDeathAnime;
+	private AnimationClip mAttackAnime;
+	private AnimationClip mHitAnime;
+	private AnimationClip mStandAnime;
 
 	private Vector3 mDefDragonPos;
 
 	private AudioSource mAudioSrc;
+
+	private System.Random mRand;
+
+	private bool _isStartedBattle = false;
+	private bool IsStartedBattle
+	{
+		get { lock (this) { return _isStartedBattle; } }
+		set { lock (this) { _isStartedBattle = value; } }
+	}
 
 	private bool _isExecEvent = false;
 	private bool IsExecEvent
@@ -46,17 +60,39 @@ public class DragonAnimation : GameEvent
 		mBreathFireAnime = mAnime.GetClip("breath fire");
 		mFlyAttackAnime = mAnime.GetClip("fly attack");
 		mDeathAnime = mAnime.GetClip("death");
+		mAttackAnime = mAnime.GetClip("attack1");
+		mHitAnime = mAnime.GetClip("hit2");
+		mStandAnime = mAnime.GetClip("stand");
 
 		mDefDragonPos = mDragon.transform.position;
 
 		mAudioSrc = mDragon.GetComponent<AudioSource>();
 		mAudioSrc.clip = roarsClip;
+
+		mRand = new System.Random(DateTime.Now.Millisecond);
 	}
 
 	void Update() {
-		if (!IsExecEvent && !mAnime.isPlaying)
+		if (IsStartedBattle && !IsExecEvent && !mAnime.isPlaying)
 		{
-			mAnime.clip = mIdleAnime;
+			switch (mRand.Next(10)) {
+				case 0:
+				case 3:
+					mAnime.clip = mStandAnime;
+					break;
+				case 1:
+				case 4:
+				case 5:
+				case 8:
+					mAnime.clip = mAttackAnime;
+					break;
+				case 2:
+				case 6:
+				case 7:
+				case 9:
+					mAnime.clip = mBreathFireAnime;
+					break;
+			}
 			mAnime.Play();
 		}
 	}
@@ -65,19 +101,25 @@ public class DragonAnimation : GameEvent
 	{
 		if (!collider.gameObject.CompareTag(weaponTagName)) return;
 
-		if (IsExecEvent) return;
+		if (!IsStartedBattle 
+			|| IsExecEvent
+			|| mAnime.clip == mStandAnime 
+			|| mAnime.clip == mHitAnime) return;
 
-		if (--dragonHp > 0)
+		dragonHp--;
+		if (dragonHp > 0)
 		{
-			StartCoroutine(DelayPlayAnimation(mAnime, mBreathFireAnime, mAudioSrc));
+			StartCoroutine(DelayPlayAnimation(mAnime, mHitAnime, mAudioSrc));
 			StartCoroutine(WaitWhilePlayingAnim(mAnime));
 		}
 		else
 		{
+			IsStartedBattle = false;
+			IsExecEvent = true;
+
 			mAudioSrc.clip = deathClip;
 			mAudioSrc.Play();
 
-			IsExecEvent = true;
 			mAnime.clip = mDeathAnime;
 			mAnime.Play();
 			StartCoroutine(DelayAction(mAnime, () =>
@@ -100,12 +142,14 @@ public class DragonAnimation : GameEvent
 				mAnime.Play();
 				
 				var dragonPos = mDefDragonPos;
-				dragonPos.z += 1.85f;
+				dragonPos.z += DRAGON_STEP;
 				StartCoroutine(Move(mDragon.transform, dragonPos, 0.5f));
 
 				StartCoroutine(DelayPlayAnimation(mAnime, mBreathFireAnime, mAudioSrc));
 
 				StartCoroutine(WaitWhilePlayingAnim(mAnime));
+
+				IsStartedBattle = true;
 				break;
 		}
 	}
